@@ -2,6 +2,7 @@ Step By Step Guide to Configure a CoreOS Cluster From Scratch
 =============================================================
 
 > Originally this instructions has been written in April of 2016.
+> Last updated at Jun 6, 2016.
 
 This guide describes how to bootstrap new Production Core OS Cluster as High Availability Service in a 15 minutes with using etcd2, Fleet, Flannel, Confd, Nginx Balancer and Docker.
 

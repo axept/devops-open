@@ -1,0 +1,15 @@
+[Unit]
+Description=someapp%i
+Requires=docker.service
+After=docker.service
+
+[Service]
+# Let the process take awhile to start up (for first run Docker containers)
+TimeoutStartSec=0
+
+# Directives with "=-" are allowed to fail without consequence
+ExecStartPre=-/usr/bin/docker kill someapp%i
+ExecStartPre=-/usr/bin/docker rm someapp%i
+ExecStartPre=/usr/bin/docker pull denisizmaylov/node-sample
+ExecStart=/usr/bin/docker run -e APPNAME=someapp%i --name someapp%i -P denisizmaylov/node-sample
+ExecStop=/usr/bin/docker stop someapp%i

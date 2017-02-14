@@ -1,0 +1,19 @@
+[Unit]
+Description=Announce Someapp%i
+
+# Requirements
+BindsTo=someapp@%i.service
+Requires=etcd2.service
+Requires=docker.service
+
+# Dependency ordering
+After=someapp@%i.service
+After=etcd2.service
+After=docker.service
+
+[Service]
+ExecStart=/bin/sh -c "while true; do etcdctl set /services/someapp/upstream/someapp%i \"$(sleep 5 && docker inspect -f '{{.NetworkSettings.IPAddress}}' someapp%i):3000\" --ttl 60;sleep 45;done"
+ExecStop=/usr/bin/etcdctl rm /services/someapp/upstream/someapp%i
+
+[X-Fleet]
+MachineOf=someapp@%i.service

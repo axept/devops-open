@@ -1,0 +1,32 @@
+[Unit]
+Description=someapp-lb%i
+
+# Requirements
+Requires=docker.service
+Requires=etcd2.service
+
+# Dependency ordering
+After=docker.service
+After=etcd2.service
+
+[Service]
+# Let the process take awhile to start up (for first run Docker containers)
+TimeoutStartSec=0
+
+# Change killmode from "control-group" to "none" to let Docker remove
+# work correctly.
+KillMode=none
+
+# Get CoreOS environmental variables
+EnvironmentFile=/etc/environment
+
+# Directives with "=-" are allowed to fail without consequence
+ExecStartPre=-/usr/bin/docker kill someapp-lb%i
+ExecStartPre=-/usr/bin/docker rm someapp-lb%i
+ExecStartPre=/usr/bin/docker pull denisizmaylov/nginx-lb
+ExecStart=/usr/bin/sh -c "/usr/bin/docker run --name someapp-lb%i --rm -p 80:80 -e SERVICE_NAME=someapp -e ETCD=\"$(ifconfig docker0 | awk '/\\<inet\\>/ { print $2 }'):2379\" denisizmaylov/nginx-lb"
+ExecStop=/usr/bin/docker stop someapp-lb%i
+
+[X-Fleet]
+Conflicts=someapp-lb@*
+MachineMetadata=loadbalancer=true
